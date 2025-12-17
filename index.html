@@ -2,222 +2,97 @@
 <html lang="en-IE" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MMM Drone Services — Live Order Board</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
-    
     <style>
         :root {
-            --primary: #00ff95; /* Neon green for high-tech look */
-            --primary-dark: #2563eb;
-            --secondary: #10b981;
+            --primary: #00ff95; 
             --dark: #0a0f1a;
-            --light: #f1f5f9;
             --text: #ffffff;
-            --border: rgba(255,255,255,0.1);
-            --card-bg: rgba(30, 41, 59, 0.8);
-            --font-main: 'Montserrat', sans-serif;
+            --card-bg: rgba(30, 41, 59, 0.9);
         }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-main); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+        body { background: var(--dark); color: var(--text); line-height: 1.4; }
         
-        body { 
-            background: var(--dark); 
-            color: var(--text); 
-            font-size: 18px; /* Increased base size */
-            line-height: 1.5;
+        /* Loading Overlay Fix */
+        #app-loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--dark); display: flex; align-items: center;
+            justify-content: center; z-index: 9999; transition: opacity 0.5s;
         }
 
-        /* --- HERO SECTION WITH INTEGRATED IMAGE --- */
-        .hero {
-            position: relative;
-            min-height: 90vh;
-            background: url('https://input-file-url-placeholder.com/image.png') no-repeat center center; /* Replace with your actual image host if needed */
-            background-size: cover;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            text-align: center;
-        }
-
-        /* Hero Overlay for legibility */
-        .hero::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, rgba(10, 15, 26, 0.7), rgba(10, 15, 26, 0.9));
-            z-index: 1;
-        }
-
-        .hero-content { 
-            position: relative;
-            z-index: 2; 
-            max-width: 1000px; 
-        }
-
-        h1 { 
-            font-weight: 900; 
-            font-size: 4.5rem; /* Larger, thicker header */
-            text-transform: uppercase;
-            line-height: 1;
-            margin-bottom: 1.5rem;
-            letter-spacing: -2px;
-            color: var(--text);
-        }
-
-        .tagline { 
-            color: var(--primary); 
-            font-weight: 700; 
-            font-size: 1.2rem;
-            text-transform: uppercase; 
-            letter-spacing: 4px;
-            display: block;
-            margin-bottom: 1rem;
-        }
-
-        /* --- NAVIGATION --- */
         nav {
-            padding: 1.5rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: absolute;
-            width: 100%;
-            top: 0; z-index: 100;
+            padding: 1rem 5%; display: flex; justify-content: space-between;
+            align-items: center; position: fixed; width: 100%; top: 0; z-index: 1000;
+            background: rgba(10, 15, 26, 0.9); backdrop-filter: blur(10px);
         }
+        .logo-img { height: 40px; filter: invert(1); } /* Makes black logo white for dark theme */
 
-        .nav-brand { 
-            font-weight: 900; 
-            font-size: 1.8rem; 
-            color: var(--text); 
-            text-decoration: none; 
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .hero {
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            text-align: center; background: linear-gradient(rgba(10,15,26,0.8), rgba(10,15,26,0.8)),
+            url('https://images.unsplash.com/photo-1473960103865-8673b53e923e?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover; padding: 0 5%;
         }
-
-        /* --- CARDS & UI --- */
-        .section-padding { padding: 6rem 10%; }
-        
-        .card {
-            background: var(--card-bg);
-            border: 2px solid var(--border);
-            border-radius: 1.5rem;
-            padding: 2.5rem;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-
-        .card:hover { border-color: var(--primary); transform: scale(1.02); }
-
-        h2, h3 { font-weight: 900; text-transform: uppercase; margin-bottom: 1rem; }
-
-        /* --- BUTTONS --- */
-        .btn {
-            padding: 1.2rem 2.5rem;
-            border-radius: 3rem;
-            border: none;
-            cursor: pointer;
-            font-weight: 900; /* Extra bold buttons */
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: 0.3s;
-        }
-
+        h1 { font-weight: 900; font-size: clamp(2.5rem, 8vw, 5rem); text-transform: uppercase; margin-bottom: 1rem; }
+        .btn { padding: 1.2rem 2rem; border-radius: 0.5rem; border: none; font-weight: 900; text-transform: uppercase; cursor: pointer; text-decoration: none; }
         .btn-primary { background: var(--primary); color: var(--dark); }
-        .btn-primary:hover { background: #fff; box-shadow: 0 0 20px var(--primary); }
 
-        /* --- BOARD LAYOUT --- */
-        .board { display: flex; gap: 1.5rem; overflow-x: auto; padding-bottom: 2rem; }
-        .column {
-            background: rgba(255,255,255,0.05);
-            min-width: 320px;
-            border-radius: 1rem;
-            padding: 1.5rem;
-        }
-
-        /* --- FOOTER --- */
-        footer {
-            background: #000;
-            padding: 4rem 10%;
-            text-align: center;
-            border-top: 4px solid var(--primary);
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            h1 { font-size: 2.5rem; }
-            .section-padding { padding: 3rem 5%; }
-        }
+        section { padding: 6rem 10%; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .card { background: var(--card-bg); padding: 2.5rem; border-radius: 1rem; border: 1px solid rgba(255,255,255,0.1); }
+        
+        .board-wrapper { overflow-x: auto; padding-bottom: 1rem; }
+        .board { display: flex; gap: 1rem; min-width: 900px; }
+        .column { flex: 1; background: rgba(255,255,255,0.05); border-radius: 1rem; padding: 1.5rem; min-height: 400px; }
+        .order-card { background: #000; padding: 1rem; border-radius: 0.5rem; margin-top: 1rem; border-left: 4px solid var(--primary); }
     </style>
 </head>
 <body>
 
+    <div id="app-loader">
+        <h2 style="color: var(--primary); font-weight: 900;">INITIALIZING DRONE NETWORK...</h2>
+    </div>
+
     <nav>
-        <a href="#" class="nav-brand">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="var(--primary)"><path d="M21 16.5c0 .38-.21.71-.53.88l-7.97 4.44c-.31.17-.69.17-1 0L3.53 17.38c-.32-.17-.53-.5-.53-.88V7.5c0-.38.21-.71.53-.88l7.97-4.44c.31-.17.69-.17 1 0l7.97 4.44c.32.17.53.5.53.88v9z"/></svg>
-            MMM PLATFORMS
-        </a>
-        <div class="nav-actions">
-            <button class="btn btn-primary" style="padding: 0.6rem 1.2rem; font-size: 0.8rem;" onclick="app.openSettings()">Settings ⚙️</button>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="font-weight: 900; letter-spacing: -1px;">MMM PLATFORMS</div>
+        </div>
+        <div style="font-size: 0.7rem; font-weight: 700; text-align: right;">
+            1ST CLASS SERVICES<br><span style="color: var(--primary);">ZERO EMISSIONS</span>
         </div>
     </nav>
 
     <section class="hero">
-        <div class="hero-content">
-            <span class="tagline">1st Class Services! "Zero Emissions"</span>
-            <h1>MMM Drone Services<br>Live Order Board</h1>
-            <p style="font-weight: 700; margin-bottom: 2rem; font-size: 1.4rem;">Next-Gen Precision Aerial Logistics.</p>
-            <div style="display: flex; gap: 1rem; justify-content: center;">
-                <button class="btn btn-primary" onclick="ui.scrollTo('services')">Book Mission</button>
-                <button class="btn" style="background: white; color: black;" onclick="ui.scrollTo('board')">Live Board</button>
+        <div>
+            <h1>MMM Drone<br>Services</h1>
+            <p style="font-weight: 700; margin-bottom: 2rem; font-size: 1.2rem;">Live Order Board — Cape Town & Johannesburg</p>
+            <button class="btn btn-primary" onclick="window.orderFlow.place()">Create Live Mission</button>
+        </div>
+    </section>
+
+    <section id="board">
+        <h2 style="font-weight: 900; margin-bottom: 2rem; text-transform: uppercase;">Real-Time Flight Board</h2>
+        <div class="board-wrapper">
+            <div class="board">
+                <div class="column"><h3>NEW</h3><div id="list-New"></div></div>
+                <div class="column"><h3>IN FLIGHT</h3><div id="list-InFlight"></div></div>
+                <div class="column"><h3>DELIVERED</h3><div id="list-Delivered"></div></div>
             </div>
         </div>
     </section>
 
-    <section id="services" class="section-padding">
-        <h2 style="text-align: center; font-size: 3rem; margin-bottom: 4rem;">Available Services</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 3rem;">
-            <div class="card">
-                <h3>Agri Mapping</h3>
-                <p>Crop Health & Multispectral Analysis.</p>
-                <p style="font-size: 1.5rem; font-weight: 900; color: var(--primary); margin: 1rem 0;">From R1,500 / €80</p>
-                <button class="btn btn-primary" style="width: 100%;" onclick="orderFlow.start('AgriMapping')">Select Plan</button>
-            </div>
-            <div class="card">
-                <h3>Drone Courier</h3>
-                <p>Industrial, Medical & Food Delivery.</p>
-                <p style="font-size: 1.5rem; font-weight: 900; color: var(--primary); margin: 1rem 0;">Base R250 + R15/kg</p>
-                <button class="btn btn-primary" style="width: 100%;" onclick="orderFlow.start('Courier')">Send Package</button>
-            </div>
-        </div>
-    </section>
-
-    <section id="board" class="section-padding" style="background: rgba(0,0,0,0.3);">
-        <h2 style="margin-bottom: 2rem;">Real-Time Operations</h2>
-        <div class="board" id="main-board">
-            <div class="column" id="col-New"><h3>New</h3><div class="list"></div></div>
-            <div class="column" id="col-InFlight"><h3>In Flight</h3><div class="list"></div></div>
-            <div class="column" id="col-Delivered"><h3>Delivered</h3><div class="list"></div></div>
-        </div>
-    </section>
-
-    <footer>
-        <h2 style="color: var(--primary);">MMM Platforms</h2>
-        <p>Mzwandile Hlophe — Creator Acknowledgement</p>
-        <p style="margin: 1rem 0; opacity: 0.6;">Cape Town | Johannesburg, South Africa</p>
-        <p>Order via MMM Platforms App: Google Play / Apple Store</p>
-        <div style="margin-top: 2rem; font-size: 0.9rem;">
-            © MMM Platforms - Mzwandile Hlophe
-        </div>
+    <footer style="text-align: center; padding: 4rem; background: #000; border-top: 2px solid var(--primary);">
+        <p style="font-weight: 900;">© MMM Platforms - Mzwandile Hlophe</p>
+        <p style="font-size: 0.8rem; opacity: 0.6; margin-top: 10px;">Download MMM Platforms App on Google Play & App Store</p>
     </footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Your specific configuration
+        // Your Exact Config
         const firebaseConfig = {
             apiKey: "AIzaSyA42AEfO6mGGSTKa-2QcR9hFEj3xBhRuoc",
             authDomain: "live-order-board-ab721.firebaseapp.com",
@@ -227,55 +102,49 @@
             appId: "1:157405136208:web:074c852dbae6a46a305855"
         };
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        try {
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
 
-        // UI Helpers
-        window.ui = {
-            scrollTo(id) { document.getElementById(id).scrollIntoView({ behavior: 'smooth' }); }
-        };
+            // Hide loader once Firebase connects
+            document.getElementById('app-loader').style.opacity = '0';
+            setTimeout(() => document.getElementById('app-loader').style.display = 'none', 500);
 
-        // Order Logic
-        window.orderFlow = {
-            async start(type) {
-                const name = prompt("Enter Client Name:");
-                if(!name) return;
-
-                try {
+            // Global Order Placement
+            window.orderFlow = {
+                async place() {
+                    const client = prompt("Enter Client/Farm Name:");
+                    const type = prompt("Service Type (Agri / Courier):");
+                    if(!client || !type) return;
                     await addDoc(collection(db, "orders"), {
-                        clientName: name,
-                        serviceType: type,
-                        status: "New",
-                        createdAt: new Date().toISOString(),
-                        pricing: type === "Courier" ? 250 : 1500
+                        client, type, status: 'New', timestamp: new Date().getTime()
                     });
-                    alert("Order Placed Successfully!");
-                } catch (e) {
-                    console.error("Error adding document: ", e);
                 }
-            }
-        };
+            };
 
-        // Real-time listener for the Board
-        const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
-        onSnapshot(q, (snapshot) => {
-            // Clear lists
-            document.querySelectorAll('.list').forEach(l => l.innerHTML = '');
-            
-            snapshot.forEach((doc) => {
-                const order = doc.data();
-                const item = document.createElement('div');
-                item.className = 'card';
-                item.style.padding = '1rem';
-                item.style.marginBottom = '1rem';
-                item.innerHTML = `<strong>${order.clientName}</strong><br><small>${order.serviceType}</small>`;
+            // Real-time synchronization
+            const q = query(collection(db, "orders"), orderBy("timestamp", "desc"));
+            onSnapshot(q, (snapshot) => {
+                // Clear all lists
+                document.getElementById('list-New').innerHTML = '';
+                document.getElementById('list-InFlight').innerHTML = '';
+                document.getElementById('list-Delivered').innerHTML = '';
                 
-                const col = document.getElementById(`col-${order.status}`) || document.getElementById('col-New');
-                col.querySelector('.list').appendChild(item);
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const card = document.createElement('div');
+                    card.className = 'order-card';
+                    card.innerHTML = `<strong>${data.client}</strong><br><small>${data.type}</small>`;
+                    
+                    const targetList = document.getElementById(`list-${data.status}`);
+                    if(targetList) targetList.appendChild(card);
+                });
             });
-        });
 
+        } catch (error) {
+            console.error("Firebase Initialization Failed:", error);
+            document.getElementById('app-loader').innerHTML = "<h2>Connection Error. Please check your internet.</h2>";
+        }
     </script>
 </body>
 </html>
