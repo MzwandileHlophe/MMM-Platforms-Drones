@@ -3,144 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MMM Drone Services — Command Center</title>
+    <title>MMM Drone Services — Live Order Board</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
-            --primary: #00ff95; /* Signature Neon Green */
-            --dark: #05080a;    /* Deep Space Black */
-            --card-bg: rgba(15, 23, 42, 0.95);
+            --primary: #00ff95; 
+            --dark: #0a0f1a;
             --text: #ffffff;
-            --danger: #ff3e3e;
-            --accent: #1e293b;
+            --card-bg: rgba(30, 41, 59, 0.95);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
         body { background: var(--dark); color: var(--text); line-height: 1.4; overflow-x: hidden; }
 
-        /* Loading Screen */
+        /* Loader */
         #app-loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--dark); display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; z-index: 9999;
+            background: var(--dark); display: flex; align-items: center;
+            justify-content: center; z-index: 9999; transition: opacity 0.5s;
         }
 
-        /* Nav with MMM Platforms Logo */
+        /* Navigation */
         nav {
-            padding: 0.8rem 5%; display: flex; justify-content: space-between;
+            padding: 1rem 5%; display: flex; justify-content: space-between;
             align-items: center; position: fixed; width: 100%; top: 0; z-index: 1000;
-            background: rgba(5, 8, 10, 0.95); backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(0, 255, 149, 0.2);
+            background: rgba(10, 15, 26, 0.9); backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
-        .nav-logo {
-            display: flex; align-items: center; gap: 12px;
-            text-decoration: none; color: white;
+        /* Hero with NEW Image Integrated */
+        .hero {
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            text-align: center; 
+            background: linear-gradient(rgba(10,15,26,0.6), rgba(10,15,26,0.9)),
+            url('https://i.postimg.cc/sQ37tTq5/Third-image.jpg');
+            background-size: cover; background-position: center; padding: 0 5%;
         }
 
-        .nav-logo img {
-            height: 45px; width: auto; 
-            border-radius: 4px;
-            filter: brightness(1.1) contrast(1.1); /* Blending adjustment */
-        }
+        h1 { font-weight: 900; font-size: clamp(2.5rem, 8vw, 5rem); text-transform: uppercase; line-height: 0.9; margin-bottom: 1.5rem; }
+        .tagline { color: var(--primary); font-weight: 700; letter-spacing: 4px; text-transform: uppercase; font-size: 0.9rem; display: block; margin-bottom: 1rem; }
 
-        .nav-logo span { font-weight: 900; font-size: 1.2rem; letter-spacing: -0.5px; }
-
-        /* Admin Layout */
-        .container { padding: 100px 5% 40px; }
-
-        .btn-row { display: flex; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; }
-        
-        .btn { 
-            padding: 0.8rem 1.8rem; border-radius: 4px; border: none; 
-            font-weight: 900; text-transform: uppercase; cursor: pointer; 
-            transition: 0.2s; font-size: 0.85rem;
-        }
+        .btn { padding: 1.2rem 2.5rem; border-radius: 0.5rem; border: none; font-weight: 900; text-transform: uppercase; cursor: pointer; transition: 0.3s; text-decoration: none; display: inline-block; }
         .btn-primary { background: var(--primary); color: var(--dark); }
-        .btn-excel { background: #ffffff; color: var(--dark); }
-        .btn-delete { background: var(--danger); color: white; padding: 0.4rem 0.8rem; font-size: 0.7rem; }
 
-        /* Operations Board */
-        .board { display: flex; gap: 20px; overflow-x: auto; padding-bottom: 20px; }
-        .column { 
-            flex: 1; min-width: 320px; background: var(--accent); 
-            border-radius: 8px; padding: 1.5rem; min-height: 500px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .column h4 { 
-            font-weight: 900; color: var(--primary); margin-bottom: 1.5rem; 
-            text-transform: uppercase; font-size: 0.9rem; letter-spacing: 2px;
-        }
+        /* Services & Board */
+        section { padding: 6rem 5%; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2.5rem; }
+        .card { background: var(--card-bg); padding: 3rem; border-radius: 1.5rem; border: 2px solid rgba(255,255,255,0.05); }
 
-        .card { 
-            background: #000; padding: 1.2rem; border-radius: 6px; 
-            margin-bottom: 1rem; border-left: 4px solid var(--primary);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        .board-wrapper { overflow-x: auto; padding-bottom: 2rem; }
+        .board { display: flex; gap: 1.5rem; min-width: 1000px; }
+        .column { flex: 1; background: rgba(255,255,255,0.03); border-radius: 1.5rem; padding: 2rem; min-height: 600px; }
+        
+        .order-card { 
+            background: #000; padding: 1.5rem; border-radius: 0.8rem; margin-bottom: 1.5rem; 
+            border-left: 6px solid var(--primary); 
         }
 
-        /* History Table */
-        .history-wrap { margin-top: 50px; background: #000; padding: 2rem; border-radius: 8px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.85rem; }
-        th { text-align: left; color: var(--primary); padding: 15px; border-bottom: 2px solid var(--primary); }
-        td { padding: 15px; border-bottom: 1px solid #111; }
+        /* Toast Notifications */
+        #toasts { position: fixed; bottom: 20px; right: 20px; z-index: 2000; }
+        .toast { background: var(--primary); color: var(--dark); padding: 1rem 2rem; margin-top: 10px; border-radius: 5px; font-weight: 900; transition: 0.3s; }
 
-        footer { text-align: center; padding: 4rem; opacity: 0.4; font-size: 0.75rem; }
+        footer { text-align: center; padding: 5rem 5%; background: #000; border-top: 5px solid var(--primary); }
     </style>
 </head>
 <body>
 
     <div id="app-loader">
-        <h2 style="color: var(--primary); font-weight: 900; letter-spacing: 4px;">MMM COMMAND CENTER</h2>
+        <h2 style="color: var(--primary); font-weight: 900;">INITIALIZING DRONE NETWORK...</h2>
     </div>
 
+    <div id="toasts"></div>
+
     <nav>
-        <a href="#" class="nav-logo">
-            <img src="https://i.postimg.cc/TPbwBMqV/MMM-Platforms-logo.jpg" alt="MMM Platforms">
-            <span>MMM PLATFORMS</span>
-        </a>
-        <div style="text-align: right;">
-            <div style="font-size: 0.7rem; font-weight: 900; color: var(--primary);">1ST CLASS SERVICES</div>
-            <div style="font-size: 0.6rem; font-weight: 700;">ZERO EMISSIONS</div>
+        <div style="font-weight: 900; font-size: 1.4rem;">MMM PLATFORMS</div>
+        <div style="text-align: right; line-height: 1;">
+            <div style="font-size: 0.8rem; font-weight: 900;">1ST CLASS SERVICES</div>
+            <div style="font-size: 0.6rem; color: var(--primary); font-weight: 700;">ENVIRONMENT FRIENDLY</div>
         </div>
     </nav>
 
-    <div class="container">
-        <div class="btn-row">
-            <button class="btn btn-primary" onclick="window.orderFlow.place()">+ New Mission</button>
-            <button class="btn btn-excel" onclick="window.orderFlow.exportExcel()">📊 Export Spreadsheet</button>
-        </div>
-
-        <div class="board">
-            <div class="column"><h4>NEW MISSIONS</h4><div id="list-New"></div></div>
-            <div class="column"><h4>IN FLIGHT</h4><div id="list-InFlight"></div></div>
-            <div class="column"><h4>DELIVERED</h4><div id="list-Delivered"></div></div>
-        </div>
-
-        <div class="history-wrap">
-            <h3 style="font-weight: 900; text-transform: uppercase;">Mission History Trail</h3>
-            <div style="overflow-x: auto;">
-                <table id="history-table">
-                    <thead>
-                        <tr>
-                            <th>DATE/TIME</th>
-                            <th>CLIENT NAME</th>
-                            <th>SERVICE</th>
-                            <th>PRIORITY</th>
-                            <th>MISSION STATUS</th>
-                        </tr>
-                    </thead>
-                    <tbody id="history-body"></tbody>
-                </table>
+    <section class="hero">
+        <div>
+            <span class="tagline">Zero Emissions - Precision Logistics</span>
+            <h1>MMM Drone<br>Services</h1>
+            <p style="font-weight: 700; font-size: 1.3rem; margin-bottom: 3rem; opacity: 0.9;">Professional Aerial Solutions for South Africa.</p>
+            <div style="display: flex; gap: 1.5rem; justify-content: center;">
+                <a href="#services" class="btn btn-primary">Our Services</a>
+                <a href="#board" class="btn" style="border: 2px solid #fff; color: #fff;">Live Board</a>
             </div>
         </div>
-    </div>
+    </section>
 
-    <footer>© 2024 MMM Platforms • Precision Aerial Logistics</footer>
+    <section id="services">
+        <h2 style="font-weight: 900; text-align: center; margin-bottom: 3rem; font-size: 2.5rem;">PROFESSIONAL SERVICES</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>Agri Mapping</h3>
+                <p style="opacity: 0.7; margin: 1rem 0;">Precision crop health analysis and multispectral mapping.</p>
+                <button class="btn btn-primary" style="width: 100%;" onclick="window.orderFlow.place()">Launch Mission</button>
+            </div>
+            <div class="card">
+                <h3>Drone Courier</h3>
+                <p style="opacity: 0.7; margin: 1rem 0;">Industrial parts and medical cold-chain delivery.</p>
+                <button class="btn btn-primary" style="width: 100%;" onclick="window.orderFlow.place()">Book Delivery</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="board">
+        <h2 style="font-weight: 900; margin-bottom: 2rem; text-align: left;">LIVE OPERATIONS BOARD</h2>
+        <div class="board-wrapper">
+            <div class="board">
+                <div class="column"><h4>NEW</h4><div id="list-New"></div></div>
+                <div class="column"><h4>IN FLIGHT</h4><div id="list-InFlight"></div></div>
+                <div class="column"><h4>DELIVERED</h4><div id="list-Delivered"></div></div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <h2 style="color: var(--primary); margin-bottom: 1rem;">MMM PLATFORMS</h2>
+        <p style="font-weight: 900;">Mzwandile Hlophe — Creator</p>
+        <p style="margin-top: 30px; opacity: 0.4; font-size: 0.7rem;">© 2024 MMM Platforms. Cape Town | Johannesburg.</p>
+    </footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc, serverTimestamp } 
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, serverTimestamp } 
             from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -149,4 +139,80 @@
             projectId: "live-order-board-ab721",
             storageBucket: "live-order-board-ab721.firebasestorage.app",
             messagingSenderId: "157405136208",
-            appId: "1:157405136208:web:074c8
+            appId: "1:157405136208:web:074c852dbae6a46a305855"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // UI Helpers
+        const hideLoader = () => {
+            const loader = document.getElementById('app-loader');
+            if(loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.display = 'none', 500);
+            }
+        };
+
+        function toast(message) {
+            const wrap = document.getElementById('toasts');
+            const el = document.createElement('div');
+            el.className = 'toast';
+            el.innerText = message;
+            wrap.appendChild(el);
+            setTimeout(() => {
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 300);
+            }, 3000);
+        }
+
+        // Mission Flow
+        window.orderFlow = {
+            async place() {
+                const client = prompt("Enter Client Name:");
+                const type = prompt("Service Type (Agri / Courier):");
+                const priority = prompt("Priority (Standard / Priority / Emergency):");
+                if (!client || !type || !priority) return;
+
+                const docRef = await addDoc(collection(db, "orders"), {
+                    client, type, priority, status: 'New',
+                    requestTime: Date.now(), createdAt: serverTimestamp()
+                });
+                toast(`Mission created for ${client}`);
+
+                // Progress status automatically for demo
+                setTimeout(async () => {
+                    await updateDoc(doc(db, "orders", docRef.id), { status: 'InFlight' });
+                    toast(`Mission for ${client} is now IN FLIGHT`);
+                }, 10000);
+
+                setTimeout(async () => {
+                    await updateDoc(doc(db, "orders", docRef.id), { status: 'Delivered' });
+                    toast(`Mission for ${client} COMPLETED`);
+                }, 30000);
+            }
+        };
+
+        // Sync Data
+        const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+        onSnapshot(q, (snapshot) => {
+            document.getElementById('list-New').innerHTML = '';
+            document.getElementById('list-InFlight').innerHTML = '';
+            document.getElementById('list-Delivered').innerHTML = '';
+
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                const card = document.createElement('div');
+                card.className = 'order-card';
+                card.innerHTML = `<strong>${data.client}</strong><br><small>${data.type} • ${data.priority}</small>`;
+                const target = document.getElementById(`list-${data.status}`);
+                if (target) target.appendChild(card);
+            });
+            hideLoader();
+        }, (error) => {
+            console.error(error);
+            hideLoader();
+        });
+    </script>
+</body>
+    </html>
